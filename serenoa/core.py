@@ -3,17 +3,16 @@ import hashlib
 from mimetypes import guess_type
 import traceback
 
-class File(object):
+class BaseFile(object):
 	def __init__(self, fname):
 		self.path = fname
-		self.abspath = os.path.join(Context.current.basepath, fname)
 		
 	def data(self):
-		return open(self.abspath, 'rb').read()
-	
+		return ''
+
 	@property
 	def deps(self):
-		return [self.abspath]
+		return []
 	
 	@property
 	def content_type(self):
@@ -25,12 +24,8 @@ class File(object):
 		
 	@property
 	def mtime(self):
-		try:
-			return os.path.getmtime(self.abspath)
-		except:
-			print("Error getting mtime")
-			return 0
-		
+		return 0
+	
 	@property
 	def sha1(self):
 		if not self._sha1:
@@ -47,9 +42,40 @@ class File(object):
 			self._md5 = h.hexdigest()
 		return self._md5
 
+class File(BaseFile):
+	def __init__(self, fname):
+		super(File, self).__init__(fname)
+		self.abspath = os.path.join(Context.current.basepath, fname)
+
+	def data(self):
+		return open(self.abspath, 'rb').read()
+
+	@property
+	def deps(self):
+		return [self.abspath]
+
+	@property
+	def mtime(self):
+		try:
+			return os.path.getmtime(self.abspath)
+		except:
+			print("Error getting mtime for {0}".format(self.path))
+
+class VFile(BaseFile):
+	def __init__(self, content_type, data):
+		super(VFile, self).__init__(None)
+		self._content_type = content_type
+		self._data = data
+
+	@property
+	def content_type(self): return self._content_type
+
+	def data(self): return self._data
+
 
 topvars = {
 	'File': File,
+	'VFile': VFile,
 }
 
 class Context(object):

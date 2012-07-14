@@ -1,4 +1,5 @@
-
 add(File('test.txt'))
+
+add(VFile('text/html', 'virtual file'), 'vfile.html')
 
 include('../blog', 'blg')
