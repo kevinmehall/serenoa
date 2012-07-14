@@ -1,6 +1,4 @@
 
-print("Running")
-
 add(File('test.txt'))
 
 include('../blog', 'blg')

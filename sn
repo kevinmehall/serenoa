@@ -5,10 +5,12 @@ import argparse
 parser = argparse.ArgumentParser(description='Create and deploy static web sites')
 parser.add_argument('path', metavar='PATH', type=str,
                    help='Path to the root directory of the site')
-parser.add_argument('-s', dest='serve', type=int,
+parser.add_argument('-s', dest='serve', type=int, metavar='PORT',
                    help='Run a server on the specified port')
 parser.add_argument('-l', dest='list', action='store_true',
                    help='List the files in the site')
+parser.add_argument('-o', dest='outdir', type=str, metavar="DIR",
+                   help='Render to output directory DIR')
 
 args = parser.parse_args()
 
@@ -18,8 +20,14 @@ context.run()
 if args.list:
 	for file in context.files:
 		print(file)
+
 elif args.serve:
 	import serenoa.server
 	serenoa.server.serve(context, args.serve)
+
+elif args.outdir:
+	from serenoa.outputs.localfs import outputLocalDir
+	outputLocalDir(context, args.outdir)
+
 else:
 	print("Error: nothing to do")
