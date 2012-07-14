@@ -1,6 +1,7 @@
 import os
 import hashlib
 from mimetypes import guess_type
+import traceback
 
 class File(object):
 	def __init__(self, fname):
@@ -95,7 +96,7 @@ class Context(object):
 
 		except Exception as e:
 			print("Error processing", self.basepath)
-			print(e)
+			traceback.print_exc()
 		
 		Context.current = prev_context
 		
