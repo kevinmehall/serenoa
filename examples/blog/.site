@@ -1,1 +1,20 @@
+pagetemplate = MustacheTemplate('page.mustache')
+posttemplate = MustacheTemplate('post.mustache')
+
+posts = [ContentFile(i) for i in glob('**/*.md')]
+posts.sort(key=lambda x:x.date, reverse=True)
+
+posts_formatted = [posttemplate(i) for i in posts]
+for i in posts_formatted:
+	add(pagetemplate(i))
+
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l. """
+    return (l[i:i+n] for i in xrange(0, len(l), n))
+
+for i, items in enumerate(chunks(posts_formatted, 10), 1):
+	pagebody = '\n'.join(item.data() for item in items)
+	page = pagetemplate({'title':'Page {0}'.format(i), 'data':pagebody})
+	add(page, "page{0}.html".format(i))
+
 add(File('test.text'), 'test.html')
