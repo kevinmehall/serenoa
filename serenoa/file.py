@@ -4,11 +4,11 @@ from mimetypes import guess_type
 
 from serenoa.core import context
 
-def abspath(fname):
+def abspath(fname, check=True):
 	"""Get the absolute path for fname relative to the base directory of the current context.
 	   Also checks to make sure the file exists. """
 	p = context().path(fname)
-	if not os.path.exists(p):
+	if check and not os.path.exists(p):
 		raise OSError("File not found: {0}".format(p))
 	return p
 
@@ -18,6 +18,13 @@ class BaseFile(object):
 	def __init__(self, suggestedpath=None):
 		"""Derived classes can suggest a path (relative to the current context base)
 		that is to be used if not overridden by Add()"""
+
+		# strip the basepath from absolute paths
+		if suggestedpath:
+			basepath = context().basepath
+			if suggestedpath[0] == '/' and suggestedpath.startswith(basepath):
+					suggestedpath = suggestedpath[len(basepath):].lstrip('/')
+
 		self.path = suggestedpath
 		
 	def data(self):
@@ -32,7 +39,7 @@ class BaseFile(object):
 	@property
 	def content_type(self):
 		"""Content-type in MIME format used to serve this URL"""
-		n = guess_type(self.path)
+		n, encoding = guess_type(self.path)
 		if not n:
 			print("Error getting content-type for {0}".format(self.pathn))
 			n = 'application/octet-stream'

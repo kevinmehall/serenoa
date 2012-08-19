@@ -8,4 +8,4 @@ Serenoa provides the script files tools for common tasks for manipulating the pa
 
 ### Dependencies
 
-    sudo pip install Markdown pystache PyYAML
+    sudo pip install Markdown pystache PyYAML glob2

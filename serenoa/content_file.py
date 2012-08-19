@@ -29,7 +29,7 @@ class ContentFile(File):
 			frontmatter, content = match.groups()
 			self.meta = yaml.load(frontmatter)
 		else:
-			print "No YAML front matter in {0}?".format(self.fname)
+			print "No YAML front matter in {0}?".format(self.path)
 			content = data
 			self.meta = {}
 

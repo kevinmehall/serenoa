@@ -39,8 +39,15 @@ class Context(object):
 		"""Add a BaseFile-derived object as a file in the output directory.
 		   `path` is relative to the Context's output directory. If path is None, the
 		   file's suggested path is used."""
+		
 		if path is None:
 			path = file.path
+
+		if path is None:
+			print "Error:", file, "has no name. Ignoring this file."
+			return
+
+		file.path = path
 		self.files[path] = file
 		
 	def include(self, path, bind):
