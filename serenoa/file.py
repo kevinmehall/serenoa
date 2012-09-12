@@ -45,24 +45,21 @@ class BaseFile(object):
 			n = 'application/octet-stream'
 		return n
 		
-	@property
 	def mtime(self):
 		"""The URL's modification date, if available"""
 		return 0
 	
-	@property
 	def sha1(self):
 		"""SHA1 hash of the data() content"""
-		if not self._sha1:
+		if not hasattr(self, '_sha1'):
 			h = hashlib.new('sha1')
 			h.update(self.data())
 			self._sha1 = h.hexdigest()
 		return self._sha1
 		
-	@property
 	def md5(self):
 		"""MD5 hash of the data() content"""
-		if not self._md5:
+		if not hasattr(self, '_md5'):
 			h = hashlib.new('md5')
 			h.update(self.data())
 			self._md5 = h.hexdigest()

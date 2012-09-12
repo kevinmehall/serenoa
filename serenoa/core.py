@@ -22,10 +22,11 @@ class Context(object):
 		self.basepath = basepath
 		self.globals = vars.copy()
 		
-		for i in ['set', 'add', 'include']:
+		for i in ['set', 'add', 'include', 'destination']:
 			self.globals[i] = getattr(self, i)
 		
 		self.files = {}
+		self.destinations = {}
 		
 	def path(self, path):
 		"""Return an absolute path for the relative path, using this Context's basepath."""
@@ -79,5 +80,9 @@ class Context(object):
 			traceback.print_exc()
 		
 		Context.current = prev_context
+
+	def destination(self, name, backend, **kwds):
+		self.destinations[name] = (backend, kwds)
+
 		
 	current = None

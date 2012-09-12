@@ -11,6 +11,9 @@ parser.add_argument('-l', dest='list', action='store_true',
                    help='List the files in the site')
 parser.add_argument('-o', dest='outdir', type=str, metavar="DIR",
                    help='Render to output directory DIR')
+parser.add_argument('-d', dest='dest', type=str, metavar="DEST",
+	               help='''Write to a destination defined with a destination()
+	                       call in the .site file''')
 
 args = parser.parse_args()
 
@@ -28,6 +31,11 @@ elif args.serve:
 elif args.outdir:
 	from serenoa.outputs.localfs import outputLocalDir
 	outputLocalDir(context, args.outdir)
+
+elif args.dest:
+	from serenoa.outputs import runOutput
+	backend, destspec = context.destinations[args.dest]
+	runOutput(context, backend, destspec)
 
 else:
 	print("Error: nothing to do")
