@@ -16,10 +16,13 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 			f = context.files[self.path[1:]]
 		except KeyError:
 			try:
-				f = context.files[os.path.join(self.path[1:], 'index.html')]
+				f = context.files[os.path.join(self.path[1:], 'index')]
 			except KeyError:
-				self.send_error(404, "Not found")
-				return
+				try:
+					f = context.files[os.path.join(self.path[1:], 'index.html')]
+				except KeyError:
+					self.send_error(404, "Not found")
+					return
 		
 		self.send_response(200)
 		self.send_header('Content-type', f.content_type)

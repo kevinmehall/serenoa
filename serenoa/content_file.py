@@ -1,5 +1,6 @@
 from serenoa.file import File
 from markdown import Markdown
+import os.path
 import re
 import yaml
 
@@ -12,12 +13,12 @@ class ContentFile(File):
 
 	md=Markdown(['headerid', 'codehilite']) #headerid(level=2)
 
-	def __init__(self, fname, **kwds):
+	def __init__(self, fname, extension='.html', **kwds):
 		"""fname -- source filename (relative to context) 
 		   keyword arguments are used as default metadata that can be overwritten by YAML front matter.
 		   The `markdown` keyword can be used to enable/disable markdown."""
 		super(ContentFile, self).__init__(fname)
-		self.path = self.path.replace('.md', '.html').replace('.text', '.html')
+		self.path = os.path.splitext(self.path)[0] + extension
 		self.meta = kwds
 		self.load()
 
