@@ -1,5 +1,14 @@
 import pystache
-from serenoa.file import BaseFile, abspath
+from serenoa.file import BaseFile, abspath, context
+
+def runMustache(tplname, *args, **kwds):
+	if context(): tplname = abspath(tplname)
+	tp = open(tplname).read()
+	return pystache.render(tp, *args, **kwds)
+
+def deferMustache(*args, **kwds):
+	return lambda: runMustache(*args, **kwds)
+
 
 class MustacheTemplate(object):
 	"""Callable that wraps a Mustache template"""
@@ -47,8 +56,8 @@ class MustachePage(BaseFile):
 		return self.tpl.content_type
 
 	def load(self):
-		tp = open(self.tpl.template).read()
-		self._data = pystache.render(tp, self.tpl.view(self.obj), *self.args, **self.kwds)
+		self._data = runMustache(self.tpl.template,
+			                     self.tpl.view(self.obj), *self.args, **self.kwds)
 
 	def data(self):
 		if not self._data:
