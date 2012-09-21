@@ -27,7 +27,7 @@ class ContentFile(File):
 		match = yaml_front_matter_re.search(data)
 		if match:
 			frontmatter, content = match.groups()
-			self.meta = yaml.load(frontmatter)
+			self.meta.update(yaml.safe_load(frontmatter.replace('\t', ' '*4)))
 		else:
 			print "No YAML front matter in {0}?".format(self.path)
 			content = data
