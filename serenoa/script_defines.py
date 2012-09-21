@@ -2,6 +2,7 @@ from serenoa.file import *
 from serenoa.content_file import ContentFile
 from serenoa.mustache_template import MustacheTemplate, runMustache, deferMustache
 from serenoa.cmd_file import CommandFile, LessFile, CoffeescriptFile
+from serenoa.rss import RSSFeed
 
 import glob2
 def glob(*patterns):
