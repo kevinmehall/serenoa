@@ -16,7 +16,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 			f = context.files[self.path[1:]]
 		except KeyError:
 			try:
-				f = context.files[os.path.join(self.path[1:], 'index')]
+				f = context.files[os.path.join(self.path[1:], 'index.html')]
 			except KeyError:
 				self.send_error(404, "Not found")
 				return

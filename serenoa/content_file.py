@@ -17,7 +17,7 @@ class ContentFile(File):
 		   keyword arguments are used as default metadata that can be overwritten by YAML front matter.
 		   The `markdown` keyword can be used to enable/disable markdown."""
 		super(ContentFile, self).__init__(fname)
-		self.path = self.path.replace('.md', '.html')
+		self.path = self.path.replace('.md', '.html').replace('.text', '.html')
 		self.meta = kwds
 		self.load()
 
@@ -31,7 +31,6 @@ class ContentFile(File):
 		else:
 			print "No YAML front matter in {0}?".format(self.path)
 			content = data
-			self.meta = {}
 
 		if self.meta.get('markdown', True):
 			self.md.reset()

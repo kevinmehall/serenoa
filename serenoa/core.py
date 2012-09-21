@@ -27,6 +27,7 @@ class Context(object):
 		
 		self.files = {}
 		self.destinations = {}
+		self.url = 'invalid'
 		
 	def path(self, path):
 		"""Return an absolute path for the relative path, using this Context's basepath."""
@@ -49,6 +50,7 @@ class Context(object):
 			return
 
 		file.path = path
+		file.url = '/'+path
 		self.files[path] = file
 		
 	def include(self, path, bind):
@@ -58,6 +60,7 @@ class Context(object):
 		c.run()
 		for k, v in c.files.items():
 			p = os.path.join(bind, k)
+			v.url = '/'+p
 			self.files[p] = v
 		 
 	def run(self):
