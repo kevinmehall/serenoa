@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 import serenoa.core
 import argparse
+from sys import exit
 
 parser = argparse.ArgumentParser(description='Create and deploy static web sites')
 parser.add_argument('path', metavar='PATH', type=str,
@@ -14,6 +15,8 @@ parser.add_argument('-o', dest='outdir', type=str, metavar="DIR",
 parser.add_argument('-d', dest='dest', type=str, metavar="DEST",
 	               help='''Write to a destination defined with a destination()
 	                       call in the .site file''')
+parser.add_argument('-n', dest='dryrun', action='store_true',
+                    help="With -d, print what would happen, but do not modify the remote")
 
 args = parser.parse_args()
 
@@ -34,7 +37,14 @@ elif args.outdir:
 
 elif args.dest:
 	from serenoa.outputs import runOutput
-	backend, destspec = context.destinations[args.dest]
+	try:
+		backend, destspec = context.destinations[args.dest]
+	except KeyError:
+		print "Invalid destination '{0}'. Defined destinations: {1}".format(
+			args.dest,
+			", ".join(context.destinations.keys()))
+		exit(1)
+	destspec['dryrun'] = args.dryrun
 	runOutput(context, backend, destspec)
 
 else:

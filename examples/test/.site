@@ -7,3 +7,9 @@ include('../blog', 'blg')
 template = MustacheTemplate('tpl.mustache')
 
 add(template(ContentFile('test.md')))
+
+
+destination('km-test', 'sftp',
+	path='sftp://kevinmehall.net/home/tmp/test/',
+	delete=True
+)

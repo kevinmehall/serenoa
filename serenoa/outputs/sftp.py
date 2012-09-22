@@ -7,9 +7,14 @@ import os.path
 DIGEST_NAME = '.tinysync_digest'
 
 class SFTPBackend(object):
-	def __init__(self, uri):
-		self.uri = urlparse(uri)
-		print self.uri
+	uses_directories = True
+	store_digest = True
+
+	def __init__(self, path):
+		self.uri = urlparse(path)
+
+	def hash(self, node):
+		return node.sha1()
 		
 	def connect(self):
 		self.transport = paramiko.Transport(self.uri.hostname)
@@ -42,16 +47,17 @@ class SFTPBackend(object):
 		
 	def get_digest(self):
 		try:
-			return self.sftp.open(DIGEST_NAME).read()
+			return parse_digest(self.sftp.open(DIGEST_NAME).read())
 		except:
 			return ''
 			
 	def put_digest(self, digest):
-		self.put_file(DIGEST_NAME, digest)
+		self.put_file(DIGEST_NAME, make_digest(digest))
 			
-	def put_file(self, path, content):
+	def put_file(self, path, node):
+		data = node.data()
 		f = self.sftp.open(path, 'w')
-		f.write(content)
+		f.write(data)
 		f.close()
 		
 	def mkdir(self, path):
@@ -77,77 +83,3 @@ def parse_digest(c):
 		r[path] = sha1
 	return r
 
-def outputSFTPDir(context, path, dryrun = False, force_full=False, delete=False):
-	local = {}
-
-	for p, node in context.files.iteritems():
-		local[p] = node.sha1()
-
-		# Generate virtual directories
-		p = os.path.dirname(p)
-		while p:
-			exists = local.get(p, '')
-			if exists == 'dir':
-				break
-			elif exists:
-				print path, "is both a file and a directory"
-				raise ValueError()
-			else:
-				local[p] = 'dir'
-			p = os.path.dirname(p)
-
-	backend = SFTPBackend(path)
-	backend.connect()
-	
-	if force_full:
-		remote = {}
-	else:
-		remote = parse_digest(backend.get_digest())
-	
-	added = updated = deleted = total = 0
-	
-	for i in sorted(remote, reverse=True):
-		if delete and i not in local:
-			print "Deleting %s"%(i)
-			deleted += 1
-			
-			if dryrun: continue
-			
-			if remote[i] == 'dir':
-				backend.delete_dir(i)
-			else:
-				backend.delete_file(i)
-
-	for i in sorted(local):
-		total += 1
-		if i not in remote:
-			print "Adding   %s"%(i)
-			added += 1
-		elif local[i] != remote[i]:
-			print "Updating %s"%(i)
-			updated += 1
-		else:
-			continue
-
-		if dryrun: continue
-
-		if local[i] == 'dir':
-			if i in remote and remote[i] != 'dir':
-				backend.delete_file(i)
-			backend.mkdir(i)
-		else:
-			if i in remote and remote[i] == 'dir':
-				backend.delete_dir(i)
-			node = context.files[i]
-			backend.put_file(i, node.data())
-
-	if added+updated+deleted and not (dryrun is True):
-		backend.put_digest(make_digest(local))
-	backend.done()
-	
-	if dryrun == 'digest-only':
-		print "UPDATING DIGEST: ",
-	elif dryrun:
-		print "DRY RUN: ",
-	print "Synchronized %i files. (%i added; %i updated; %i deleted)" %(total, added, updated, deleted)
-	

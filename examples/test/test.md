@@ -7,4 +7,4 @@ title: The Title
 Markdown File
 =============
 
-testing, **testing**
+testing, **testing**, *testing*
