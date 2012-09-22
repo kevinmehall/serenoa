@@ -61,7 +61,7 @@ class S3Backend(object):
 		pass
 			
 	def put_file(self, path, node):
-		data = node.data()
+		data = node if isinstance(node, str) else node.data()
 		headers = { 'x-amz-acl': 'public-read' , 'Content-Type': node.content_type}
 		self.conn.put(self.bucket, path, S3.S3Object(data), headers)
 

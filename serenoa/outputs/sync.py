@@ -68,7 +68,7 @@ def sync(context, backend_type, dryrun = False, force_full=False, delete=False, 
 
 	if added+updated+deleted and not (dryrun is True):
 		if backend.store_digest:
-			backend.put_digest(make_digest(local))
+			backend.put_digest(local)
 	backend.done()
 	
 	if dryrun == 'digest-only':

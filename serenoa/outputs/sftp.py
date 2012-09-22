@@ -17,20 +17,39 @@ class SFTPBackend(object):
 		return node.sha1()
 		
 	def connect(self):
-		self.transport = paramiko.Transport(self.uri.hostname)
+		address = self.uri.hostname
+		username = self.uri.username
+		port = int(self.uri.port) if self.uri.port else 22
+
 		agent = paramiko.Agent()
 		keys = agent.get_keys()
+		ssh_config = paramiko.SSHConfig() 
+		try: 
+			with open(os.path.join(os.path.expanduser('~'), '.ssh', 'config')) as f: 
+				ssh_config.parse(f)
+				config_lookup = ssh_config.lookup(address)
+				if 'hostname' in config_lookup:
+					address = config_lookup['hostname'] or address
+				if 'user' in config_lookup:
+					username = config_lookup['user'] or username
+				if 'port' in config_lookup:
+					port = config_lookup['port'] or port
+		except:
+			pass
+
+		self.transport = paramiko.Transport((address, port))
+
 		if len(keys) != 0:
 			self.transport.connect()
 			for key in keys:
 				try:
-					self.transport.auth_publickey(self.uri.username, key)
+					self.transport.auth_publickey(username, key)
 				except:
 					pass
 				if self.transport.is_authenticated():
 					break
 		if not self.transport.is_authenticated():
-			self.transport.auth_password(self.uri.username, self.uri.password)
+			self.transport.auth_password(username, self.uri.password)
 		self.sftp = paramiko.SFTPClient.from_transport(self.transport)
 		
 		print "Base is", self.uri.path
@@ -55,7 +74,7 @@ class SFTPBackend(object):
 		self.put_file(DIGEST_NAME, make_digest(digest))
 			
 	def put_file(self, path, node):
-		data = node.data()
+		data = node if isinstance(node, str) else node.data()
 		f = self.sftp.open(path, 'w')
 		f.write(data)
 		f.close()
