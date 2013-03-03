@@ -1,6 +1,6 @@
 import os
 import hashlib
-from mimetypes import guess_type
+import mimetypes
 
 from serenoa.core import context
 
@@ -11,6 +11,14 @@ def abspath(fname, check=True):
 	if check and not os.path.exists(p):
 		raise OSError("File not found: {0}".format(p))
 	return p
+
+def guess_type(name):
+	"""Content-type in MIME format used to serve this URL"""
+	n, encoding = mimetypes.guess_type(name)
+	if not n:
+		print("Error getting content-type for {0}".format(name))
+		n = 'application/octet-stream'
+	return n
 
 class BaseFile(object):
 	"""Abstract base class for a node that is accessed by a particular HTTP URL"""
@@ -38,13 +46,7 @@ class BaseFile(object):
 	
 	@property
 	def content_type(self):
-		"""Content-type in MIME format used to serve this URL"""
-		n, encoding = guess_type(self.path)
-		if not n:
-			print("Error getting content-type for {0}".format(self.pathn))
-			n = 'application/octet-stream'
-		return n
-		
+		return guess_type(self.path)
 	def mtime(self):
 		"""The URL's modification date, if available"""
 		return 0
@@ -68,10 +70,15 @@ class BaseFile(object):
 class File(BaseFile):
 	def __init__(self, fname):
 		super(File, self).__init__(fname)
+		self._content_type = guess_type(fname)
 		self.abspath = abspath(fname)
 
 	def data(self):
 		return open(self.abspath, 'rb').read()
+
+	@property
+	def content_type(self):
+		return self._content_type
 
 	@property
 	def deps(self):
