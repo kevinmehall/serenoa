@@ -11,7 +11,7 @@ class ContentFile(File):
        These files isn't necessarily supposed to be add()ed directly, but may be passed through
        a template first."""
 
-	md=Markdown(['headerid', 'codehilite']) #headerid(level=2)
+	md=Markdown(['headerid']) #'codehilite', headerid(level=2)
 
 	def __init__(self, fname, extension='.html', **kwds):
 		"""fname -- source filename (relative to context) 
