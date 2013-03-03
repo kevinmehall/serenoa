@@ -1,6 +1,7 @@
 import os
 import hashlib
 import mimetypes
+from datetime import datetime
 
 from serenoa.core import context
 
@@ -47,9 +48,11 @@ class BaseFile(object):
 	@property
 	def content_type(self):
 		return guess_type(self.path)
+	
+	@property
 	def mtime(self):
 		"""The URL's modification date, if available"""
-		return 0
+		return None
 	
 	def sha1(self):
 		"""SHA1 hash of the data() content"""
@@ -87,7 +90,7 @@ class File(BaseFile):
 	@property
 	def mtime(self):
 		try:
-			return os.path.getmtime(self.abspath)
+			return datetime.fromtimestamp(os.path.getmtime(self.abspath))
 		except:
 			print("Error getting mtime for {0}".format(self.path))
 
