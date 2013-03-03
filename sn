@@ -17,6 +17,8 @@ parser.add_argument('-d', dest='dest', type=str, metavar="DEST",
 	                       call in the .site file''')
 parser.add_argument('-n', dest='dryrun', action='store_true',
                     help="With -d, print what would happen, but do not modify the remote")
+parser.add_argument('-u', dest='dryrun', action='store_const', const='digest-only',
+                    help="With -d, update the remote digest (SFTP)")
 
 args = parser.parse_args()
 
